@@ -7,29 +7,32 @@ from PIL import ImageFont
 from PIL import ImageDraw
 import os
 
-
+# Create the main Tkinter window
 root = Tk()
 root.title("Watermark your photo")
 root.geometry("1000x900")
-root.grid_rowconfigure(3, weight=3) # Allow row 3 to expand
-root.grid_columnconfigure(0, weight=3) # Allow column 0 to expand
+root.grid_rowconfigure(3, weight=3) # Allow row 3 to expand (the image)
+#root.grid_columnconfigure(0, weight=3) # Allow column 0 to expand
 
+# Create a frame within the main window
 mainframe = ttk.Frame(root)
 mainframe.grid(column=0, row=0, padx=10, pady=10, sticky=(N, W, E, S))
 
+# Variables to store file paths and display text in labels
 img_filepath_var = StringVar(master=None)
 img_filepath_var.set("No file selected")
 img_filepath = ""
 
 logo_filepath_var = StringVar(master=None)
-logo_filepath_var.set("No file selected")
-logo_filepath = ""
+logo_filepath_var.set("beer_logo.png")
+logo_filepath = "/home/raimo/PycharmProjects/day85-GUI-image-watermark/logos/beer_logo.png"
 
 # Create a label for displaying the image
 image_label = ttk.Label(root)
 image_label.grid(column=0, row=3, columnspan=4, pady=10)
 
 def return_file_name(filepath):
+    """Function to split a file path and return the file name without extension"""
     # Use os.path to split the file path
     file_dir, file_name = os.path.split(filepath)
 
@@ -38,42 +41,45 @@ def return_file_name(filepath):
     return file_name_without_extension, file_extension
 
 def add_logo_on_image():
+    """Function to add logo on image"""
     global img_filepath
     # Open image that is currently visible (in case it is open) and make a copy of it
     image = Image.open(img_filepath)
     wm_logo_image = image.copy()
     width, height = wm_logo_image.size
     x = width - 200
+
     # Open logo image
     logo_image = Image.open(logo_filepath)
     logo_image = logo_image.resize((200,200))
-    #print(logo_image.size)
-    wm_logo_image.paste(logo_image, (x, 0), logo_image)#, 200, 200))
-    # logo_image.close()
-    # wm_logo_image.close()
-    # image.close()
 
-    logo_name, logo_extension = return_file_name(img_filepath)
+    # Destination, image to paste, coordinates, transparency mask
+    wm_logo_image.paste(logo_image, (x, 0), logo_image)
 
-    wm_img_logo_path = "images_with_logo/" + logo_name + logo_extension
+    img_name, img_extension = return_file_name(img_filepath)
+    logo_name, logo_extension = return_file_name(logo_filepath)
+
+    wm_img_logo_path = "images_with_logo/" + img_name + "_" + logo_name + img_extension
     wm_logo_image.save(wm_img_logo_path)
     open_image(wm_img_logo_path)
 
 
 def add_text_on_image():
+    """Function to add text to an image"""
     global img_filepath
     font = ImageFont.truetype("/usr/share/fonts/truetype/ubuntu/Ubuntu-M.ttf", 40)
     image = Image.open(img_filepath)
 
-    print(img_filepath)
     watermark_image = image.copy()
     draw = ImageDraw.Draw(watermark_image)
     width, height = watermark_image.size
+
+    # Get input text from entry field
     wm_text = text_input.get()
-    draw.text((width/2, 50), wm_text, fill=(255, 255, 255), font=font, anchor="ms")
-    #watermark_image.show()
+    draw.text((width/2, 100), wm_text, fill=(255, 255, 255), font=font, anchor="ms")
+
     img_name, img_extension = return_file_name(img_filepath)
-    print(f"kuvan nimi: {img_name}")
+
     wm_image_path = "images_with_text/" + img_name + wm_text + img_extension
     img_filepath = wm_image_path
     watermark_image.save(wm_image_path)
@@ -81,6 +87,7 @@ def add_text_on_image():
 
 
 def open_image(image_path):
+    """Function to open and display an image"""
     # Open an image using Pillow (JPG reads as <class 'PIL.JpegImagePlugin.JpegImageFile'>)
     image = Image.open(image_path)
 
@@ -89,7 +96,7 @@ def open_image(image_path):
     desired_short_side = 600
 
     if height > width:
-        # Calculate the new height based on the desired width
+        # Calculate the new height based on the desired short side
         new_height = int(desired_short_side * (height / width))
 
         # Resize the image with the fixed width and calculated height
@@ -98,15 +105,16 @@ def open_image(image_path):
         new_width = int(desired_short_side * (width / height))
         image = image.resize((new_width, desired_short_side))
 
-
     # Convert the image to a PhotoImage (<class 'PIL.ImageTk.PhotoImage'>)
     image_tk = ImageTk.PhotoImage(image)
-    print(f"image_tk: {type(image_tk)}")
 
     # Create a label to display the image
     image_label.configure(image=image_tk)
     image_label.image = image_tk
+
+
 def upload_image():
+    """Function to upload an image"""
     global img_filepath_var, img_filepath
     img_filepath = filedialog.askopenfilename()
     print("Selected:", img_filepath)
@@ -115,6 +123,7 @@ def upload_image():
     open_image(img_filepath)
 
 def upload_logo():
+    """Function to upload a logo image"""
     global logo_filepath_var, logo_filepath
     logo_filepath = filedialog.askopenfilename()
     print("Selected:", logo_filepath)
