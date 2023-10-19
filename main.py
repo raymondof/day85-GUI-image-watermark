@@ -11,12 +11,12 @@ import os
 root = Tk()
 root.title("Watermark your photo")
 root.geometry("1000x900")
-root.grid_rowconfigure(3, weight=3) # Allow row 3 to expand (the image)
-#root.grid_columnconfigure(0, weight=3) # Allow column 0 to expand
+root.grid_rowconfigure(3, weight=3)  # Allow row 3 to expand (the image)
+# root.grid_columnconfigure(0, weight=3)  # Allow column 0 to expand
 
 # Create a frame within the main window
 mainframe = ttk.Frame(root)
-mainframe.grid(column=0, row=0, padx=10, pady=10, sticky=(N, W, E, S))
+mainframe.grid(column=0, row=0, padx=10, pady=10)
 
 # Variables to store file paths and display text in labels
 img_filepath_var = StringVar(master=None)
@@ -31,6 +31,7 @@ logo_filepath = "/home/raimo/PycharmProjects/day85-GUI-image-watermark/logos/bee
 image_label = ttk.Label(root)
 image_label.grid(column=0, row=3, columnspan=4, pady=10)
 
+
 def return_file_name(filepath):
     """Function to split a file path and return the file name without extension"""
     # Use os.path to split the file path
@@ -39,6 +40,7 @@ def return_file_name(filepath):
     # Split the file name from its extension
     file_name_without_extension, file_extension = os.path.splitext(file_name)
     return file_name_without_extension, file_extension
+
 
 def add_logo_on_image():
     """Function to add logo on image"""
@@ -51,7 +53,7 @@ def add_logo_on_image():
 
     # Open logo image
     logo_image = Image.open(logo_filepath)
-    logo_image = logo_image.resize((200,200))
+    logo_image = logo_image.resize((200, 200))
 
     # Destination, image to paste, coordinates, transparency mask
     wm_logo_image.paste(logo_image, (x, 0), logo_image)
@@ -122,6 +124,7 @@ def upload_image():
     img_filepath_var.set(img_filepath)
     open_image(img_filepath)
 
+
 def upload_logo():
     """Function to upload a logo image"""
     global logo_filepath_var, logo_filepath
@@ -130,6 +133,7 @@ def upload_logo():
     print("Which type is:", type(logo_filepath))
     logo_name, logo_extension = return_file_name(logo_filepath)
     logo_filepath_var.set(logo_name + logo_extension)
+
 
 # Set buttons
 add_file_button = tkinter.Button(mainframe, width=8, text="Open file", command=upload_image)
